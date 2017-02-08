@@ -4,21 +4,24 @@ ADD JAR OSM2Hive.jar;
 
 !echo "creating temporary functions";
 CREATE TEMPORARY FUNCTION OSMImportNodes AS 'info.pavie.osm2hive.controller.HiveNodeImporter';
-CREATE TEMPORARY FUNCTION OSMImportWays AS 'info.pavie.osm2hive.controller.HiveWayImporter';
-CREATE TEMPORARY FUNCTION OSMImportRelations AS 'info.pavie.osm2hive.controller.HiveRelationImporter';
 
-use mapproject;
-!echo "dropping osmdata";
-DROP TABLE osmdata;
+!echo "creating database mapdata";
+CREATE DATABASE IF NOT EXISTS mapdata;
+USE mapdata;
+!echo "dropping osmdata table if it already exists; we want to start fresh";
+DROP TABLE IF EXISTS osmdata;
 
 !echo "creating table osmdata";
 CREATE TABLE osmdata(osm_content STRING) STORED AS TEXTFILE;
-!echo "loading data into osmdata";
+
+!echo "loading Chicago data into osmdata";
 LOAD DATA LOCAL INPATH 'Chicago.osm.gz' OVERWRITE INTO TABLE osmdata;
 
-!echo "creating table osmnodes";
-CREATE TABLE osmnodes AS SELECT OSMImportNodes(osm_content) FROM osmdata;
-!echo "creating table osmways";
-CREATE TABLE osmways AS SELECT OSMImportWays(osm_content) FROM osmdata;
-!echo "creating table osmwrelations";
-CREATE TABLE osmrelations AS SELECT OSMImportRelations(osm_content) FROM osmdata;
+!echo "creating table chicagonodes";
+CREATE TABLE chicagonodes AS SELECT OSMImportNodes(osm_content) FROM osmdata;
+
+!echo "loading San Francisco data into osmdata";
+LOAD DATA LOCAL INPATH 'Chicago.osm.gz' OVERWRITE INTO TABLE osmdata;
+
+!echo "creating table chicagonodes";
+CREATE TABLE sanfrancisconodes AS SELECT OSMImportNodes(osm_content) FROM osmdata;
