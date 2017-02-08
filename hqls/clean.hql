@@ -1,4 +1,1 @@
-use mapproject;
-
-drop table node;
-drop table relation;
+DROP DATABASE IF EXISTS mapdata CASCADE;
